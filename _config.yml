@@ -1,0 +1,14 @@
+# Site settings
+title: Schachmagie Infoseite
+description: >-
+  Diese Seite ist eine Mini-Infopage für "Schachmagie"
+email: daniel.hawes@kus.nrw.schule # 
+
+# Theme settings
+remote_theme: pages-themes/architect@v0.2.0
+
+# Build settings
+markdown: kramdown
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
