@@ -3,6 +3,6 @@ layout: default
 title: Schachmagie 
 ---
 
-# Schneller Aufschlag
+# Schach-Magie
 
-Aufschlag für eine eigene Infoseite für Schachmagie
+Schach-Magie: Jeden Freitag 16 Uhr im Cafe HerzStück (Krumme Str. 44), für Schüler/innen 7-15 Jahre, regelmäßig >20 Schüler/innen, aktuell noch Plätze frei, kein Verein, lockere Atmosphäre, … Schaut einfach mal vorbei!
