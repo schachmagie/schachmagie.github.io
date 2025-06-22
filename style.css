@@ -2,8 +2,7 @@
 body {
     margin: 0;
     font-family: 'Poppins', sans-serif; /* Using Google Font */
-    background: linear-gradient(135deg, #a7d9f7 0%, #d8eaff 100%); /* Soft blue gradient background */
-    color: #333;
+    color: #f0f0f0; /* Lighter text for darker backgrounds */
     line-height: 1.6;
     min-height: 100vh; /* Ensure full viewport height */
     display: flex;
@@ -11,16 +10,29 @@ body {
     align-items: center; /* Center content horizontally */
     padding: 20px; /* Add some padding around the content */
     box-sizing: border-box; /* Include padding in element's total width and height */
+
+    /* --- Chessboard Background START --- */
+    background-color: #eee; /* Light square color for base */
+    background-image:
+        linear-gradient(45deg, #bbb 25%, transparent 25%), /* Darker square part 1 */
+        linear-gradient(-45deg, #bbb 25%, transparent 25%), /* Darker square part 2 */
+        linear-gradient(45deg, transparent 75%, #bbb 75%), /* Darker square part 3 */
+        linear-gradient(-45deg, transparent 75%, #bbb 75%); /* Darker square part 4 */
+    background-size: 80px 80px; /* Size of each square (e.g., 40px for each color block results in 80x80 total) */
+    background-position: 0 0, 0 40px, 40px -40px, -40px 0px; /* Positioning to create the pattern */
+    /* Adjust #eee and #bbb for your preferred light/dark square colors */
+    /* --- Chessboard Background END --- */
 }
 
 /* Glassmorphism Card Styling */
 .glassmorphism-card {
-    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
+    /* Updated background color for sections to a darker blue with transparency */
+    background: rgba(4, 30, 66, 0.6); /* Darker blue with transparency */
     backdrop-filter: blur(10px); /* Frosted glass effect */
     -webkit-backdrop-filter: blur(10px); /* For Safari support */
     border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
     border-radius: 15px; /* Rounded corners */
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Soft shadow for depth */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); /* Slightly darker shadow for contrast */
     padding: 30px;
     margin-bottom: 30px;
     width: 90%; /* Adjust width as needed */
@@ -54,8 +66,8 @@ header {
 header h1 {
     margin: 0;
     font-size: 2.2em;
-    color: #2c3e50; /* Darker text for contrast */
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    color: #e0e0e0; /* Lighter text for header on darker background */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 nav ul {
@@ -73,7 +85,7 @@ nav ul li {
 
 nav ul li a {
     text-decoration: none;
-    color: #2c3e50;
+    color: #f0f0f0; /* Lighter text for navigation */
     font-weight: 600;
     padding: 8px 12px;
     border-radius: 8px;
@@ -86,7 +98,7 @@ nav ul li a::after {
     position: absolute;
     width: 0;
     height: 2px;
-    background: #2c3e50;
+    background: #00bfff; /* Brighter blue for underline */
     left: 50%;
     bottom: -5px;
     transform: translateX(-50%);
@@ -94,8 +106,8 @@ nav ul li a::after {
 }
 
 nav ul li a:hover {
-    color: #007bff; /* Highlight on hover */
-    text-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    color: #00bfff; /* Highlight on hover */
+    text-shadow: 0 0 8px rgba(0, 191, 255, 0.6);
 }
 
 nav ul li a:hover::after {
@@ -112,7 +124,7 @@ main {
 }
 
 section h2 {
-    color: #2c3e50;
+    color: #e0e0e0; /* Lighter text for section titles */
     text-align: center;
     margin-bottom: 25px;
     font-size: 2em;
@@ -125,7 +137,7 @@ section h2::after {
     position: absolute;
     width: 60px;
     height: 3px;
-    background: #007bff;
+    background: #00bfff; /* Brighter blue for underline */
     left: 50%;
     bottom: 0;
     transform: translateX(-50%);
@@ -133,7 +145,7 @@ section h2::after {
 }
 
 section p, section ul {
-    color: #555;
+    color: #e0e0e0; /* Lighter text for section content */
     text-align: justify;
 }
 
@@ -143,7 +155,18 @@ section ul {
 }
 
 section ul li strong {
-    color: #2c3e50;
+    color: #f0f0f0;
+}
+
+section a {
+    color: #00bfff; /* Bright blue for links within sections */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+section a:hover {
+    color: #66d9ef; /* Slightly lighter blue on hover */
+    text-decoration: underline;
 }
 
 /* Team Grid */
@@ -157,15 +180,16 @@ section ul li strong {
 
 .member-card {
     text-align: center;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1); /* Slightly lighter transparent background for cards */
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background 0.3s ease;
 }
 
 .member-card:hover {
     transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .member-card img {
@@ -175,16 +199,16 @@ section ul li strong {
     object-fit: cover;
     margin-bottom: 15px;
     border: 3px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 .member-card h3 {
     margin: 10px 0 5px;
-    color: #2c3e50;
+    color: #f0f0f0; /* Lighter text for names */
 }
 
 .member-card p {
-    color: #777;
+    color: #ccc; /* Lighter text for descriptions */
     font-size: 0.9em;
 }
 
@@ -194,21 +218,27 @@ section ul li strong {
 }
 
 .event-item {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1); /* Slightly lighter transparent background for events */
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+}
+
+.event-item:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .event-item h3 {
-    color: #007bff;
+    color: #00bfff; /* Bright blue for event titles */
     margin-top: 0;
     margin-bottom: 10px;
 }
 
 .event-item p {
     margin-bottom: 5px;
+    color: #f0f0f0; /* Lighter text for event details */
 }
 
 /* Gallery Grid */
@@ -225,12 +255,14 @@ section ul li strong {
     height: 200px;
     object-fit: cover;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, border 0.3s ease;
+    border: 3px solid transparent; /* Added for hover effect */
 }
 
 .gallery-grid img:hover {
     transform: scale(1.03);
+    border: 3px solid #00bfff; /* Highlight on hover */
 }
 
 /* Social Media Links */
@@ -252,17 +284,17 @@ section ul li strong {
     color: #fff;
     font-weight: 600;
     border-radius: 8px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     position: relative;
     overflow: hidden; /* For hover effect */
 }
 
-/* Social Icon Backgrounds */
-.facebook { background-color: #3b5998; }
-.instagram { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
-.twitter { background-color: #00acee; }
-.youtube { background-color: #c4302b; }
+/* Social Icon Backgrounds - Adjusted colors slightly for better contrast on darker background */
+.facebook { background-color: #314d86; } /* Slightly darker Facebook blue */
+.instagram { background: linear-gradient(45deg, #c77b2b 0%,#b85c34 25%,#b02137 50%,#a51d52 75%,#9d1570 100%); } /* Adjusted gradient */
+.twitter { background-color: #008cc7; } /* Slightly darker Twitter blue */
+.youtube { background-color: #9c2522; } /* Slightly darker YouTube red */
 
 .social-icon::before {
     content: '';
@@ -286,20 +318,20 @@ footer {
     text-align: center;
     padding: 20px;
     margin-top: 30px;
-    color: #555;
+    color: #e0e0e0; /* Lighter text for footer */
     font-size: 0.9em;
     width: 90%;
     max-width: 960px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(4, 30, 66, 0.6); /* Match section background */
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 footer a {
-    color: #007bff;
+    color: #00bfff; /* Bright blue for footer links */
     text-decoration: none;
     margin: 0 10px;
 }
