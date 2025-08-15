@@ -1,12 +1,10 @@
-/* === Schachmagie — John Moore–inspired one-pager ===
-   Big intro, slim labels, crisp grid, light greys, smooth hovers
-   ------------------------------------------------------------ */
+/* === Schachmagie — John Moore–inspired (Light Only, High Contrast) === */
 
 :root{
-  --bg:#fafafa;
-  --ink:#111;
-  --muted:#6b6b6b;
-  --line:#e8e8e8;
+  --bg:#fafafa;     /* light canvas */
+  --ink:#111111;    /* primary text (near-black) */
+  --muted:#444444;  /* secondary text (darker for readability) */
+  --line:#e8e8e8;   /* hairline rules */
   --maxw:1080px;
   --pad: clamp(16px, 3vw, 32px);
   --radius:20px;
@@ -17,20 +15,23 @@
 *,
 *::before,*::after{ box-sizing:border-box; }
 html,body{ height:100%; }
+
 body{
-  margin:0; background:var(--bg); color:var(--ink);
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
   font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
                Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
   line-height:1.6;
 }
 
-/* Layout container */
+/* Container */
 .container{ max-width:var(--maxw); margin-inline:auto; padding-inline:var(--pad); }
 
-/* Header as hero */
+/* Header (sticky, translucent) */
 .header{
   position:sticky; top:0; z-index:40;
-  backdrop-filter:saturate(1.2) blur(6px);
+  backdrop-filter: saturate(1.2) blur(6px);
   background: color-mix(in oklab, var(--bg), transparent 20%);
   border-bottom:1px solid var(--line);
 }
@@ -43,7 +44,7 @@ body{
 .menu{ display:flex; gap: clamp(12px, 2vw, 26px); flex-wrap:wrap; }
 .menu a{
   text-decoration:none; color:var(--ink);
-  text-transform:uppercase; letter-spacing:.12em; font-size:12px; opacity:.9; position:relative;
+  text-transform:uppercase; letter-spacing:.12em; font-size:12px; opacity:.95; position:relative;
 }
 .menu a::after{
   content:""; position:absolute; left:0; right:0; bottom:-6px; height:1px;
@@ -55,46 +56,58 @@ body{
 .section{ padding-block: clamp(36px, 8vw, 120px); }
 .section-header{
   display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
-  padding-bottom:12px; border-bottom:1px solid var(--line); margin-bottom: clamp(16px, 3vw, 28px);
+  padding-bottom:12px; border-bottom:1px solid var(--line);
+  margin-bottom: clamp(16px, 3vw, 28px);
 }
-.section h2{
-  margin:0; font-size: clamp(22px, 3.6vw, 44px); letter-spacing:-.01em;
-}
-.kicker, .section-header + .kicker{
-  color:var(--muted); text-transform:uppercase; letter-spacing:.16em; font-size:12px;
-}
+.section h2{ margin:0; font-size: clamp(22px, 3.6vw, 44px); letter-spacing:-.01em; }
+.kicker{ color:var(--muted); text-transform:uppercase; letter-spacing:.16em; font-size:12px; }
 
-/* Paragraph rhythm */
+/* Rhythm */
 .stack > * + *{ margin-top:14px; }
 .stack-sm > * + *{ margin-top:8px; }
 
-/* Cards & Grids */
+/* Grid & Cards */
 .grid{
   display:grid; gap: clamp(12px, 2vw, 20px);
   grid-template-columns: repeat(12, minmax(0,1fr));
 }
 .card{
   grid-column: span 12;
-  border:1px solid var(--line); border-radius:var(--radius); background:#fff;
-  overflow:hidden; box-shadow: var(--shadow);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#ffffff; /* ensure bright card on light bg */
+  overflow:hidden;
+  box-shadow: var(--shadow);
   transition: transform var(--t), box-shadow var(--t);
 }
 .card:hover{ transform:translateY(-2px); box-shadow:0 16px 36px rgba(0,0,0,.08); }
+
 @media (min-width:720px){ .card{ grid-column: span 6; } }
 @media (min-width:1000px){ .card{ grid-column: span 4; } }
 
-.card-media{ position:relative; aspect-ratio: 16/10; overflow:hidden; }
-.card-media img{ width:100%; height:100%; object-fit:cover; transform:scale(1.02); transition:transform 600ms cubic-bezier(.2,.8,.2,1); }
+.card-media{ position:relative; aspect-ratio: 16/10; overflow:hidden; background:#f2f2f2; }
+.card-media img{
+  width:100%; height:100%; object-fit:cover;
+  transform:scale(1.02);
+  transition:transform 600ms cubic-bezier(.2,.8,.2,1);
+}
 .card:hover .card-media img{ transform:scale(1.07); }
-.card-body{ padding:16px 16px 18px; }
-.card-title{ margin:0 0 6px 0; font-weight:600; font-size: clamp(16px, 1.6vw, 20px); letter-spacing:-.005em; }
-.card-desc{ margin:0; color:#1f1f1f; font-size:14.5px; }
-.card-meta{ color:var(--muted); text-transform:uppercase; font-size:12px; letter-spacing:.14em; margin-bottom:6px; }
 
-/* Events list uses cards already; ensure titles look clean */
+.card-body{ padding:16px 16px 18px; }
+.card-title{
+  margin:0 0 6px 0; font-weight:600;
+  font-size: clamp(16px, 1.6vw, 20px); letter-spacing:-.005em; color:var(--ink);
+}
+/* High-contrast body text inside cards */
+.card-desc{ margin:0; color:#222222; font-size:14.5px; }
+.card-meta{
+  color:var(--muted); text-transform:uppercase; font-size:12px; letter-spacing:.14em; margin-bottom:6px;
+}
+
+/* Events: keep titles crisp */
 .event-list .card-title{ font-size: clamp(16px, 1.5vw, 19px); }
 
-/* Gallery grid uses same cards; enable lightbox cursor */
+/* Gallery */
 .gallery-grid .card-media{ cursor: zoom-in; }
 
 /* Links */
@@ -105,15 +118,12 @@ a:hover{ opacity:.9; }
 .footer{
   border-top:1px solid var(--line);
   padding-block: clamp(28px, 5vw, 60px);
-  color:var(--muted); font-size:14px; display:grid; gap:8px;
+  color:var(--muted);
+  font-size:14px;
+  display:grid; gap:8px;
 }
 
-/* Focus */
+/* Focus (accessibility) */
 :focus-visible{ outline:2px solid #000; outline-offset:2px; border-radius:8px; }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark){
-  :root{ --bg:#0b0c0d; --ink:#f5f5f6; --muted:#a1a1aa; --line:#1f2937; --shadow:0 14px 36px rgba(0,0,0,.45); }
-  .card{ background:#0f1113; border-color:#1f2937; }
-  .menu a::after{ background:var(--ink); }
-}
+/* No dark mode override — site stays light for maximum contrast */
