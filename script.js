@@ -1,31 +1,27 @@
 // script.js
 (function () {
+  // >>>>>>>>>>>> SET THESE THREE <<<<<<<<<<<<
+  const GH_OWNER  = 'schachmagie';
+  const GH_REPO   = 'schachmagie.github.io'; // if it's a project page, use that repo name
+  const BRANCH    = 'main';
+  // ----------------------------------------
+
   const GALLERY_SEL = '#gallery';
-  const GRID_SEL = `${GALLERY_SEL} .gallery-grid, ${GALLERY_SEL} #gallery-thumbs`;
-  const JSON_URL = 'assets/gallery.json';
   const ALLOWED = /\.(png|jpe?g|gif|webp|avif)$/i;
 
   const root = document.querySelector(GALLERY_SEL);
   if (!root) return;
 
-  // ---------- helpers ----------
+  // helpers
   const el = (tag, props = {}, ...children) => {
     const n = document.createElement(tag);
     Object.assign(n, props);
     for (const c of children) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
     return n;
   };
+  const pretty = (name) => name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-  const ensureGrid = () => {
-    let grid = root.querySelector(GRID_SEL);
-    if (!grid) {
-      grid = el('div', { className: 'gallery-grid' });
-      root.appendChild(grid);
-    }
-    return grid;
-  };
-
-  // ---------- overlay (keeps your style, adds nav) ----------
+  // overlay/lightbox with nav
   const overlay = el('div');
   overlay.style.cssText = `
     position:fixed; inset:0; background:rgba(0,0,0,.85);
@@ -36,18 +32,16 @@
   const big = el('img');
   big.style.cssText = 'width:100%; height:100%; object-fit:contain; border-radius:14px;';
   const caption = el('figcaption', { style: 'position:absolute; left:0; right:0; bottom:0; padding:.5rem .75rem; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,.6)); font: 500 14px/1.3 system-ui, sans-serif;' });
-
   const mkNavBtn = (label, side) => {
-    const btn = el('button', { type: 'button', title: label, 'aria-label': label });
-    btn.textContent = side === 'prev' ? '‹' : '›';
-    btn.style.cssText = `
+    const b = el('button', { type: 'button', title: label, 'aria-label': label });
+    b.textContent = side === 'prev' ? '‹' : '›';
+    b.style.cssText = `
       position:absolute; top:50%; transform:translateY(-50%);
       ${side === 'prev' ? 'left:.5rem' : 'right:.5rem'};
       border:0; background:rgba(0,0,0,.35); color:#fff;
       font-size:2rem; width:44px; height:44px; border-radius:50%;
-      cursor:pointer; display:grid; place-items:center;
-    `;
-    return btn;
+      cursor:pointer; display:grid; place-items:center;`;
+    return b;
   };
   const prevBtn = mkNavBtn('Vorheriges Bild', 'prev');
   const nextBtn = mkNavBtn('Nächstes Bild', 'next');
@@ -60,10 +54,7 @@
   document.body.appendChild(overlay);
 
   const close = () => (overlay.style.display = 'none');
-  overlay.addEventListener('click', (e) => {
-    // click outside the image area closes; clicks on buttons don’t bubble-close
-    if (e.target === overlay) close();
-  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
   document.addEventListener('keyup', (e) => {
     if (e.key === 'Escape') close();
     if (overlay.style.display !== 'none') {
@@ -72,51 +63,51 @@
     }
   });
 
-  // ---------- data loading ----------
-  async function loadListFromJson() {
-    try {
-      const res = await fetch(JSON_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      let arr = await res.json();
-      // Accept either ["assets/a.jpg", ...] or [{src, alt}, ...]
-      arr = arr.map((item) =>
-        typeof item === 'string' ? { src: item, alt: '' } : item
-      );
-      return arr.filter((o) => o && o.src && ALLOWED.test(o.src));
-    } catch {
-      return null; // signal fallback
-    }
+  // build thumbs container if needed
+  let thumbs = root.querySelector('#gallery-thumbs');
+  if (!thumbs) {
+    thumbs = el('div', { id: 'gallery-thumbs', className: 'gallery-thumbs', role: 'list' });
+    root.appendChild(thumbs);
   }
 
+  // --------- LOAD FROM GITHUB CONTENTS API (no gallery.json) ----------
+  async function loadFromGitHubAssets() {
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/assets?ref=${encodeURIComponent(BRANCH)}`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
+    if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+    const data = await res.json(); // array of entries
+    // keep only image files
+    return data
+      .filter(item => item && item.type === 'file' && ALLOWED.test(item.name))
+      .map(item => ({ src: item.download_url, alt: pretty(item.name) }));
+  }
+
+  // fallback: collect any images already in HTML
   function collectExistingImgs() {
     const imgs = root.querySelectorAll('.card-media img, .gallery-grid img, .gallery-thumbs img');
     const list = [];
     imgs.forEach((img) => {
-      if (img.src && ALLOWED.test(img.src)) {
-        list.push({ src: img.getAttribute('src') || img.src, alt: img.alt || '' });
-      }
+      const src = img.getAttribute('src') || '';
+      if (ALLOWED.test(src)) list.push({ src, alt: img.alt || '' });
     });
-    return list.length ? list : null;
+    return list;
   }
 
-  // ---------- render thumbnails ----------
+  // render
   let items = [];
   let current = 0;
   let thumbButtons = [];
 
   function renderThumbs(list) {
-    const grid = ensureGrid();
-    grid.innerHTML = '';
+    thumbs.innerHTML = '';
     thumbButtons = list.map((item, i) => {
       const btn = el('button', { type: 'button' });
-      btn.style.cssText = `
-        padding:0; border:2px solid transparent; border-radius:.75rem; overflow:hidden; background:none; cursor:pointer;
-      `;
+      btn.style.cssText = 'padding:0; border:2px solid transparent; border-radius:.75rem; overflow:hidden; background:none; cursor:pointer;';
       btn.addEventListener('click', () => open(i));
       const t = el('img', { src: item.src, alt: item.alt || `Vorschau ${i + 1}`, loading: 'lazy' });
       t.style.cssText = 'width:100%; height:90px; object-fit:cover; display:block;';
       btn.appendChild(t);
-      grid.appendChild(btn);
+      thumbs.appendChild(btn);
       return btn;
     });
   }
@@ -135,12 +126,10 @@
     });
   }
 
-  // ---------- show/open ----------
   function show(i) {
     if (!items.length) return;
     current = (i + items.length) % items.length;
     const { src, alt } = items[current];
-
     const tmp = new Image();
     tmp.onload = () => {
       big.src = src;
@@ -156,37 +145,33 @@
     overlay.style.display = 'grid';
   }
 
-  prevBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    show(current - 1);
-  });
-  nextBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    show(current + 1);
-  });
+  prevBtn.addEventListener('click', (e) => { e.stopPropagation(); show(current - 1); });
+  nextBtn.addEventListener('click', (e) => { e.stopPropagation(); show(current + 1); });
 
-  // ---------- bootstrap ----------
+  // init
   (async function init() {
-    const fromJson = await loadListFromJson();
-    const fallback = fromJson && fromJson.length ? null : collectExistingImgs();
-    items = fromJson && fromJson.length ? fromJson : (fallback || []);
+    try {
+      items = await loadFromGitHubAssets();
+    } catch (e) {
+      console.warn('Falling back to images already in HTML:', e);
+      items = collectExistingImgs();
+    }
 
     if (!items.length) {
-      // nothing to show -> hide gallery section
-      root.style.display = 'none';
+      root.style.display = 'none'; // nothing to show
       return;
     }
 
     renderThumbs(items);
 
-    // Also make any inline images clickable for zoom (if you keep some)
+    // make any inline images clickable too
     root.querySelectorAll('img').forEach((img, idx) => {
-      if (!ALLOWED.test(img.src || '')) return;
+      const src = img.getAttribute('src') || '';
+      if (!ALLOWED.test(src)) return;
       img.style.cursor = 'zoom-in';
       img.addEventListener('click', () => open(idx < items.length ? idx : 0));
     });
 
-    // start on first image (preload main)
     show(0);
   })();
 })();
