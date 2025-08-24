@@ -132,11 +132,20 @@
     const { src, alt } = items[current];
     const tmp = new Image();
     tmp.onload = () => {
-      big.src = src;
-      big.alt = alt || `Galerie Bild ${current + 1} von ${items.length}`;
-      caption.textContent = alt || '';
-      updateThumbState();
-    };
+  // overlay image (unchanged)
+  big.src = src;
+  big.alt = alt || `Galerie Bild ${current + 1} von ${items.length}`;
+  caption.textContent = alt || '';
+
+  // NEW: inline main image
+  if (MAIN_IMG) {
+    MAIN_IMG.src = src;
+    MAIN_IMG.alt = alt || `Galerie Bild ${current + 1} von ${items.length}`;
+    MAIN_IMG.style.visibility = 'visible';
+  }
+
+  updateThumbState();
+};
     tmp.src = src;
   }
 
