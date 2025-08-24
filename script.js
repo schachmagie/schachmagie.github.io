@@ -1,16 +1,20 @@
 // script.js
 (function () {
-  // >>>>>>>>>>>> SET THESE THREE <<<<<<<<<<<<
   const GH_OWNER  = 'schachmagie';
-  const GH_REPO   = 'schachmagie.github.io'; // if it's a project page, use that repo name
+  const GH_REPO   = 'schachmagie.github.io'; 
   const BRANCH    = 'main';
-  // ----------------------------------------
 
   const GALLERY_SEL = '#gallery';
   const ALLOWED = /\.(png|jpe?g|gif|webp|avif)$/i;
 
   const root = document.querySelector(GALLERY_SEL);
   if (!root) return;
+
+  // NEW: grab inline elements
+  const MAIN_IMG  = document.getElementById('gallery-main');
+  const VIEW_PREV = root.querySelector('.gallery-view .prev');
+  const VIEW_NEXT = root.querySelector('.gallery-view .next');
+  if (MAIN_IMG) MAIN_IMG.style.visibility = 'hidden';
 
   // helpers
   const el = (tag, props = {}, ...children) => {
@@ -21,7 +25,7 @@
   };
   const pretty = (name) => name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-  // overlay/lightbox with nav
+  // overlay/lightbox
   const overlay = el('div');
   overlay.style.cssText = `
     position:fixed; inset:0; background:rgba(0,0,0,.85);
@@ -31,7 +35,7 @@
   fig.style.cssText = 'max-width:min(1200px,92vw); max-height:90vh; margin:0; position:relative;';
   const big = el('img');
   big.style.cssText = 'width:100%; height:100%; object-fit:contain; border-radius:14px;';
-  const caption = el('figcaption', { style: 'position:absolute; left:0; right:0; bottom:0; padding:.5rem .75rem; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,.6)); font: 500 14px/1.3 system-ui, sans-serif;' });
+  const caption = el('figcaption', { style: 'position:absolute; left:0; right:0; bottom:0; padding:.5rem .75rem; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,.6)); font:500 14px/1.3 system-ui,sans-serif;' });
   const mkNavBtn = (label, side) => {
     const b = el('button', { type: 'button', title: label, 'aria-label': label });
     b.textContent = side === 'prev' ? '‹' : '›';
@@ -63,28 +67,26 @@
     }
   });
 
-  // build thumbs container if needed
+  // thumbs container
   let thumbs = root.querySelector('#gallery-thumbs');
   if (!thumbs) {
     thumbs = el('div', { id: 'gallery-thumbs', className: 'gallery-thumbs', role: 'list' });
     root.appendChild(thumbs);
   }
 
-  // --------- LOAD FROM GITHUB CONTENTS API (no gallery.json) ----------
+  // GitHub API
   async function loadFromGitHubAssets() {
     const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/assets?ref=${encodeURIComponent(BRANCH)}`;
     const res = await fetch(url, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
     if (!res.ok) throw new Error(`GitHub API ${res.status}`);
-    const data = await res.json(); // array of entries
-    // keep only image files
+    const data = await res.json();
     return data
       .filter(item => item && item.type === 'file' && ALLOWED.test(item.name))
       .map(item => ({ src: item.download_url, alt: pretty(item.name) }));
   }
 
-  // fallback: collect any images already in HTML
   function collectExistingImgs() {
-    const imgs = root.querySelectorAll('.card-media img, .gallery-grid img, .gallery-thumbs img');
+    const imgs = root.querySelectorAll('img');
     const list = [];
     imgs.forEach((img) => {
       const src = img.getAttribute('src') || '';
@@ -103,7 +105,7 @@
     thumbButtons = list.map((item, i) => {
       const btn = el('button', { type: 'button' });
       btn.style.cssText = 'padding:0; border:2px solid transparent; border-radius:.75rem; overflow:hidden; background:none; cursor:pointer;';
-      btn.addEventListener('click', () => open(i));
+      btn.addEventListener('click', () => show(i));
       const t = el('img', { src: item.src, alt: item.alt || `Vorschau ${i + 1}`, loading: 'lazy' });
       t.style.cssText = 'width:100%; height:90px; object-fit:cover; display:block;';
       btn.appendChild(t);
@@ -132,20 +134,20 @@
     const { src, alt } = items[current];
     const tmp = new Image();
     tmp.onload = () => {
-  // overlay image (unchanged)
-  big.src = src;
-  big.alt = alt || `Galerie Bild ${current + 1} von ${items.length}`;
-  caption.textContent = alt || '';
+      // overlay
+      big.src = src;
+      big.alt = alt || `Galerie Bild ${current + 1} von ${items.length}`;
+      caption.textContent = alt || '';
 
-  // NEW: inline main image
-  if (MAIN_IMG) {
-    MAIN_IMG.src = src;
-    MAIN_IMG.alt = alt || `Galerie Bild ${current + 1} von ${items.length}`;
-    MAIN_IMG.style.visibility = 'visible';
-  }
+      // NEW: update inline main image
+      if (MAIN_IMG) {
+        MAIN_IMG.src = src;
+        MAIN_IMG.alt = alt || `Galerie Bild ${current + 1} von ${items.length}`;
+        MAIN_IMG.style.visibility = 'visible';
+      }
 
-  updateThumbState();
-};
+      updateThumbState();
+    };
     tmp.src = src;
   }
 
@@ -157,30 +159,26 @@
   prevBtn.addEventListener('click', (e) => { e.stopPropagation(); show(current - 1); });
   nextBtn.addEventListener('click', (e) => { e.stopPropagation(); show(current + 1); });
 
+  // NEW: hook inline prev/next + click-to-open
+  VIEW_PREV?.addEventListener('click', (e) => { e.preventDefault(); show(current - 1); });
+  VIEW_NEXT?.addEventListener('click', (e) => { e.preventDefault(); show(current + 1); });
+  MAIN_IMG?.addEventListener('click', () => open(current));
+
   // init
   (async function init() {
     try {
       items = await loadFromGitHubAssets();
     } catch (e) {
-      console.warn('Falling back to images already in HTML:', e);
+      console.warn('Falling back to inline images in HTML:', e);
       items = collectExistingImgs();
     }
 
     if (!items.length) {
-      root.style.display = 'none'; // nothing to show
+      root.style.display = 'none';
       return;
     }
 
     renderThumbs(items);
-
-    // make any inline images clickable too
-    root.querySelectorAll('img').forEach((img, idx) => {
-      const src = img.getAttribute('src') || '';
-      if (!ALLOWED.test(src)) return;
-      img.style.cursor = 'zoom-in';
-      img.addEventListener('click', () => open(idx < items.length ? idx : 0));
-    });
-
     show(0);
   })();
 })();
