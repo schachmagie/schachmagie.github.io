@@ -132,28 +132,20 @@
         </section>
 
         <!-- Galerie -->
-        <section id="gallery" class="section">
-            <div class="section-header">
-                <h2>Galerie</h2>
-            </div>
-            <div class="gallery-grid grid">
-                <article class="card">
-                    <div class="card-media">
-                        <img src="placeholder_flyer_AE.png" alt="Galerie Bild 1">
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-media">
-                        <img src="Schachmagie0.jpg" alt="Schach-Magier beim Blitzturnier in Lieme">
-                    </div>
-                </article>
-                <article class="card">
-                    <div class="card-media">
-                        <img src="Schachmagie2.jpg" alt="Schach-Magie beim Hermilauf">
-                    </div>
-                </article>
-            </div>
-        </section>
+       <section id="gallery" class="glassmorphism-card">
+  <h2>Galerie</h2>
+
+  <!-- Hauptbild / Lightbox -->
+  <div class="gallery-view" aria-live="polite">
+    <button class="nav prev" aria-label="Vorheriges Bild">‹</button>
+    <img id="gallery-main" src="" alt="Galerie Bild" loading="eager">
+    <button class="nav next" aria-label="Nächstes Bild">›</button>
+  </div>
+
+  <!-- Thumbnails werden per JS gefüllt -->
+  <div class="gallery-thumbs" id="gallery-thumbs" role="list"></div>
+</section>
+        
 
         <!-- Social Media -->
         <section id="social-media" class="section">
